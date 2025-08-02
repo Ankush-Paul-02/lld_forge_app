@@ -12,7 +12,6 @@ import com.devmare.lld_forge_app.data.model.LoginRequest
 import com.devmare.lld_forge_app.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -32,7 +31,7 @@ class LoginViewModel @Inject constructor(
                 val request = LoginRequest(email, password)
                 val response = loginUseCase(request)
 
-                dataStoreManager.saveAccessToken(
+                dataStoreManager.saveTokens(
                     response.data.data.accessToken,
                     response.data.data.refreshToken
                 )

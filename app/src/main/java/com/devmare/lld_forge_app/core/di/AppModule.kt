@@ -2,9 +2,11 @@ package com.devmare.lld_forge_app.core.di
 
 import android.content.Context
 import com.devmare.lld_forge_app.core.interceptor.AuthInterceptor
+import com.devmare.lld_forge_app.core.interceptor.TokenAuthenticator
 import com.devmare.lld_forge_app.core.interceptor.TokenProvider
 import com.devmare.lld_forge_app.core.interceptor.TokenProviderImpl
 import com.devmare.lld_forge_app.core.prefs.DataStoreManager
+import com.devmare.lld_forge_app.core.session.SessionManager
 import com.devmare.lld_forge_app.data.api.AuthApi
 import com.devmare.lld_forge_app.data.api.UserApi
 import com.devmare.lld_forge_app.data.repository.AuthRepositoryImpl
@@ -22,7 +24,12 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,9 +54,24 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+    fun provideTokenAuthenticator(
+        tokenProvider: TokenProvider,
+        @AuthRetrofit retrofit: Retrofit,
+        sessionManager: SessionManager
+    ): TokenAuthenticator {
+        val authApi = retrofit.create(AuthApi::class.java)
+        return TokenAuthenticator(tokenProvider, authApi, sessionManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 
@@ -64,7 +86,18 @@ object AppModule {
     }
 
     @Provides
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
+    @Singleton
+    @AuthRetrofit
+    fun provideAuthRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("http://192.168.29.239:8081/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(@AuthRetrofit retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
     }
 

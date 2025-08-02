@@ -1,5 +1,7 @@
 package com.devmare.lld_forge_app.core.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -17,6 +19,7 @@ enum class Screen {
 
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 fun LldForgeNavGraph(navController: NavHostController, startDestination: String) {
     NavHost(
         navController = navController,
@@ -47,7 +50,13 @@ fun LldForgeNavGraph(navController: NavHostController, startDestination: String)
         }
 
         composable(Screen.HOME.name) {
-            HomeScreen()
+            HomeScreen(
+                onSessionExpired = {
+                    navController.navigate(Screen.LOGIN.name) {
+                        popUpTo(Screen.HOME.name) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
