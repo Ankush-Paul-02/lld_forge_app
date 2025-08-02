@@ -2,6 +2,7 @@ package com.devmare.lld_forge_app.data.api
 
 import com.devmare.lld_forge_app.data.model.LoginRequest
 import com.devmare.lld_forge_app.data.model.LoginResponse
+import com.devmare.lld_forge_app.data.model.RefreshRequest
 import com.devmare.lld_forge_app.data.model.SignupRequest
 import com.devmare.lld_forge_app.data.model.SignupResponse
 import retrofit2.http.Body
@@ -14,4 +15,7 @@ interface AuthApi {
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
+
+    @POST("auth/refresh-token")
+    suspend fun refresh(@Body request: RefreshRequest): LoginResponse
 }

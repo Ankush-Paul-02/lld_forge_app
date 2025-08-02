@@ -15,16 +15,33 @@ class DataStoreManager(private val context: Context) {
         val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
     }
 
-    suspend fun saveAccessToken(token: String, refreshToken: String) {
+    suspend fun saveTokens(token: String, refreshToken: String) {
         context.dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN_KEY] = token
             preferences[REFRESH_TOKEN_KEY] = refreshToken
         }
     }
 
+    suspend fun saveAccessToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN_KEY] = token
+        }
+    }
+
+    suspend fun saveRefreshToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[REFRESH_TOKEN_KEY] = token
+        }
+    }
+
     suspend fun getAccessToken(): String? {
         val preferences = context.dataStore.data.first()
         return preferences[ACCESS_TOKEN_KEY]
+    }
+
+    suspend fun getRefreshToken(): String? {
+        val preferences = context.dataStore.data.first()
+        return preferences[REFRESH_TOKEN_KEY]
     }
 
     suspend fun clearAccessToken() {

@@ -5,49 +5,49 @@ import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devmare.lld_forge_app.core.exception.AppInfoException
+import com.devmare.lld_forge_app.core.utils.ExceptionUtils.Companion.extractErrorMessage
+import com.devmare.lld_forge_app.domain.usecase.EnsureValidTokenUseCase
 import com.devmare.lld_forge_app.domain.usecase.UserUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val userUsecase: UserUsecase,
+    private val ensureValidTokenUseCase: EnsureValidTokenUseCase,
 ) : ViewModel() {
 
-    private val _userState = MutableStateFlow<UserUIState>(UserUIState.Idle)
-    val userState: MutableStateFlow<UserUIState> = _userState
+    private val _homeState = MutableStateFlow<HomeUIState>(HomeUIState.Idle)
+    val homeState: MutableStateFlow<HomeUIState> = _homeState
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun fetchCurrentUserProfile() {
         viewModelScope.launch {
-            _userState.value = UserUIState.Loading
+            _homeState.value = HomeUIState.Loading
+
+            val tokenStillValid = ensureValidTokenUseCase.execute()
+            if (!tokenStillValid) {
+                _homeState.value = HomeUIState.SessionExpired
+                return@launch
+            }
+
             try {
                 val user = userUsecase()
-                _userState.value = UserUIState.Success(user.data.user)
+                _homeState.value = HomeUIState.Success(user.data.user)
             } catch (e: HttpException) {
                 throw AppInfoException(extractErrorMessage(e.response()?.errorBody()?.string()))
             } catch (e: AppInfoException) {
-                _userState.value = UserUIState.Error(e.message ?: "AppInfo error")
+                _homeState.value = HomeUIState.Error(e.message ?: "AppInfo error")
             } catch (e: Exception) {
-                _userState.value = UserUIState.Error(e.localizedMessage ?: "Unknown error")
+                _homeState.value = HomeUIState.Error(e.localizedMessage ?: "Unknown error")
             }
         }
     }
 
-    private fun extractErrorMessage(errorBody: String?): String {
-        return try {
-            val jsonObject = JSONObject(errorBody ?: "")
-            jsonObject.optString("message", "Something went wrong")
-        } catch (e: Exception) {
-            "Something went wrong"
-        }
-    }
-
     fun resetState() {
-        _userState.value = UserUIState.Idle
+        _homeState.value = HomeUIState.Idle
     }
 }
