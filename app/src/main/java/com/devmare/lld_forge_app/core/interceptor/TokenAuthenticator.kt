@@ -1,6 +1,7 @@
 package com.devmare.lld_forge_app.core.interceptor
 
 import android.util.Log
+import com.devmare.lld_forge_app.core.session.SessionManager
 import com.devmare.lld_forge_app.data.api.AuthApi
 import com.devmare.lld_forge_app.data.model.RefreshRequest
 import kotlinx.coroutines.runBlocking
@@ -13,6 +14,7 @@ import javax.inject.Inject
 class TokenAuthenticator @Inject constructor(
     private val tokenProvider: TokenProvider,
     private val authApi: AuthApi,
+    private val sessionManager: SessionManager
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -45,7 +47,7 @@ class TokenAuthenticator @Inject constructor(
                     .build()
             } catch (e: Exception) {
                 Log.e("TokenAuthenticator", "Error refreshing token: ${e.message}")
-                e.printStackTrace()
+                sessionManager.logout()
                 null
             }
         }

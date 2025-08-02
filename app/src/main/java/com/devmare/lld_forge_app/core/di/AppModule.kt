@@ -6,6 +6,7 @@ import com.devmare.lld_forge_app.core.interceptor.TokenAuthenticator
 import com.devmare.lld_forge_app.core.interceptor.TokenProvider
 import com.devmare.lld_forge_app.core.interceptor.TokenProviderImpl
 import com.devmare.lld_forge_app.core.prefs.DataStoreManager
+import com.devmare.lld_forge_app.core.session.SessionManager
 import com.devmare.lld_forge_app.data.api.AuthApi
 import com.devmare.lld_forge_app.data.api.UserApi
 import com.devmare.lld_forge_app.data.repository.AuthRepositoryImpl
@@ -55,10 +56,11 @@ object AppModule {
     @Singleton
     fun provideTokenAuthenticator(
         tokenProvider: TokenProvider,
-        @AuthRetrofit retrofit: Retrofit
+        @AuthRetrofit retrofit: Retrofit,
+        sessionManager: SessionManager
     ): TokenAuthenticator {
         val authApi = retrofit.create(AuthApi::class.java)
-        return TokenAuthenticator(tokenProvider, authApi)
+        return TokenAuthenticator(tokenProvider, authApi, sessionManager)
     }
 
     @Provides

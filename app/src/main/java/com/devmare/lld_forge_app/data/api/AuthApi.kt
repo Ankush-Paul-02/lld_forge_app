@@ -1,5 +1,6 @@
 package com.devmare.lld_forge_app.data.api
 
+import com.devmare.lld_forge_app.core.dto.DefaultResponseDto
 import com.devmare.lld_forge_app.data.model.LoginRequest
 import com.devmare.lld_forge_app.data.model.LoginResponse
 import com.devmare.lld_forge_app.data.model.RefreshRequest
@@ -18,4 +19,7 @@ interface AuthApi {
 
     @POST("auth/refresh-token")
     suspend fun refresh(@Body request: RefreshRequest): LoginResponse
+
+    @POST("auth/logout")
+    suspend fun logout(): DefaultResponseDto
 }
