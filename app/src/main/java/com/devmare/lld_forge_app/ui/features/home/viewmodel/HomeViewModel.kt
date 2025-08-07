@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.devmare.lld_forge_app.core.exception.AppInfoException
 import com.devmare.lld_forge_app.core.utils.ExceptionUtils.Companion.extractErrorMessage
 import com.devmare.lld_forge_app.domain.usecase.EnsureValidTokenUseCase
+import com.devmare.lld_forge_app.domain.usecase.FetchLeaderboardMentorsUseCase
 import com.devmare.lld_forge_app.domain.usecase.UserUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userUsecase: UserUsecase,
+    private val fetchLeaderboardMentorsUseCase: FetchLeaderboardMentorsUseCase,
     private val ensureValidTokenUseCase: EnsureValidTokenUseCase,
 ) : ViewModel() {
 
@@ -36,7 +38,8 @@ class HomeViewModel @Inject constructor(
 
             try {
                 val user = userUsecase()
-                _homeState.value = HomeUIState.Success(user.data.user)
+                val leaderboardMentors = fetchLeaderboardMentorsUseCase()
+                _homeState.value = HomeUIState.Success(user.data.user, leaderboardMentors.data.data)
             } catch (e: HttpException) {
                 throw AppInfoException(extractErrorMessage(e.response()?.errorBody()?.string()))
             } catch (e: AppInfoException) {

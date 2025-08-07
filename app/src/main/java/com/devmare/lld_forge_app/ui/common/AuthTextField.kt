@@ -24,9 +24,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.devmare.lld_forge_app.R
-import com.devmare.lld_forge_app.ui.theme.gradient2
-import com.devmare.lld_forge_app.ui.theme.greyColor
-import com.devmare.lld_forge_app.ui.theme.whiteColor
+import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
+import com.devmare.lld_forge_app.ui.theme.primaryTextColor
+import com.devmare.lld_forge_app.ui.theme.secondaryTextColor
 
 @Composable
 fun AuthTextField(
@@ -41,14 +41,14 @@ fun AuthTextField(
 
     OutlinedTextField(
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = gradient2,
-            unfocusedBorderColor = greyColor,
-            disabledTextColor = whiteColor,
-            focusedTextColor = whiteColor,
-            unfocusedTextColor = whiteColor,
-            cursorColor = whiteColor,
-            focusedLabelColor = whiteColor,
-            unfocusedLabelColor = greyColor
+            focusedBorderColor = primaryGradientMiddle,
+            unfocusedBorderColor = secondaryTextColor,
+            disabledTextColor = primaryTextColor,
+            focusedTextColor = primaryTextColor,
+            unfocusedTextColor = primaryTextColor,
+            cursorColor = primaryTextColor,
+            focusedLabelColor = primaryTextColor,
+            unfocusedLabelColor = secondaryTextColor
         ),
         value = value,
         onValueChange = onValueChange,
@@ -57,11 +57,12 @@ fun AuthTextField(
         trailingIcon = {
             if (isPassword) {
                 val iconRes =
-                    if (passwordVisible) R.drawable.baseline_remove_red_eye_24 else R.drawable.baseline_remove_red_eye_24
+                    if (passwordVisible) R.drawable.password_view else R.drawable.password_hide
                 val description = if (passwordVisible) "Hide password" else "Show password"
                 Image(
                     painter = painterResource(id = iconRes),
                     contentDescription = description,
+                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(secondaryTextColor),
                     modifier = Modifier
                         .clickable { passwordVisible = !passwordVisible }
                         .size(24.dp)

@@ -11,24 +11,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = gradient1,
-    secondary = gradient2,
-    tertiary = gradient3,
-    background = backgroundColor,
-    surface = backgroundColor,
-    onPrimary = whiteColor,
-    onSecondary = whiteColor,
-    onTertiary = whiteColor,
-    onBackground = whiteColor,
-    onSurface = whiteColor,
+    primary = primaryGradientStart,
+    secondary = primaryGradientMiddle,
+    tertiary = primaryGradientEnd,
+    background = appBackground,
+    surface = appBackground,
+    onPrimary = primaryTextColor,
+    onSecondary = primaryTextColor,
+    onTertiary = primaryTextColor,
+    onBackground = primaryTextColor,
+    onSurface = primaryTextColor,
     error = errorColor,
-    onError = whiteColor
+    onError = primaryTextColor
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = gradient1,
-    secondary = gradient2,
-    tertiary = gradient3,
+    primary = primaryGradientStart,
+    secondary = primaryGradientMiddle,
+    tertiary = primaryGradientEnd,
     background = Color.White,
     surface = Color.White,
     onPrimary = Color.Black,
@@ -41,9 +41,9 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun Lld_forge_appTheme(
-    darkTheme: Boolean = true, // Your app is always dark by default
-    dynamicColor: Boolean = false, // Disable dynamic color for consistent branding
+fun LldForgeAppTheme(
+    darkTheme: Boolean = true, // Always dark by default
+    dynamicColor: Boolean = false, // Toggle if dynamic theming is needed
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {

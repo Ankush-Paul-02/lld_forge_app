@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devmare.lld_forge_app.core.exception.UserInputException
 import com.devmare.lld_forge_app.ui.features.auth.SignUpScreen
-import com.devmare.lld_forge_app.ui.theme.backgroundColor
 import com.devmare.lld_forge_app.ui.features.auth.viewmodel.SignUpViewModel
+import com.devmare.lld_forge_app.ui.theme.appBackground
 import kotlinx.coroutines.launch
 
 @Composable
@@ -26,8 +26,8 @@ fun SignUpScreenWrapper(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentColor = backgroundColor,
-        containerColor = backgroundColor
+        contentColor = appBackground,
+        containerColor = appBackground
     ) { paddingValues ->
         SignUpScreen(
             modifier = Modifier.padding(paddingValues),

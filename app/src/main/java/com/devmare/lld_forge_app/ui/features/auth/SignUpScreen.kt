@@ -31,11 +31,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.devmare.lld_forge_app.ui.common.AuthTextField
 import com.devmare.lld_forge_app.ui.common.ClickableLoginText
 import com.devmare.lld_forge_app.ui.common.GradientButton
-import com.devmare.lld_forge_app.ui.theme.gradient1
-import com.devmare.lld_forge_app.ui.theme.gradient2
-import com.devmare.lld_forge_app.ui.theme.whiteColor
 import com.devmare.lld_forge_app.ui.features.auth.viewmodel.SignUpUIState
 import com.devmare.lld_forge_app.ui.features.auth.viewmodel.SignUpViewModel
+import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
+import com.devmare.lld_forge_app.ui.theme.primaryGradientStart
+import com.devmare.lld_forge_app.ui.theme.primaryTextColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -92,7 +92,11 @@ fun SignUpScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("LLD FORGE.", style = MaterialTheme.typography.displayLarge, color = whiteColor)
+            Text(
+                "LLD FORGE.",
+                style = MaterialTheme.typography.displayLarge,
+                color = primaryTextColor
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -129,8 +133,8 @@ fun SignUpScreen(
                     }
                 },
                 gradientColors = listOf(
-                    gradient1,
-                    gradient2
+                    primaryGradientStart,
+                    primaryGradientMiddle
                 ),
                 enabled = uiState !is SignUpUIState.Loading
             )

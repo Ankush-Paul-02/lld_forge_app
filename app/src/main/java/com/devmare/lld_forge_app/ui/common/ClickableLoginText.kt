@@ -7,8 +7,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import com.devmare.lld_forge_app.ui.theme.gradient2
-import com.devmare.lld_forge_app.ui.theme.whiteColor
+import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
+import com.devmare.lld_forge_app.ui.theme.primaryTextColor
 
 @Composable
 fun ClickableLoginText(
@@ -21,7 +21,7 @@ fun ClickableLoginText(
         pushStringAnnotation(tag = "LOGIN", annotation = "login")
         withStyle(
             style = SpanStyle(
-                color = gradient2,
+                color = primaryGradientMiddle,
                 textDecoration = TextDecoration.Underline
             )
         ) {
@@ -32,7 +32,7 @@ fun ClickableLoginText(
 
     ClickableText(
         text = annotatedString,
-        style = MaterialTheme.typography.bodyLarge.copy(color = whiteColor),
+        style = MaterialTheme.typography.bodyLarge.copy(color = primaryTextColor),
         onClick = { offset ->
             annotatedString.getStringAnnotations(tag = "LOGIN", start = offset, end = offset)
                 .firstOrNull()?.let {

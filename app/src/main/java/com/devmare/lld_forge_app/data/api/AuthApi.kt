@@ -21,5 +21,5 @@ interface AuthApi {
     suspend fun refresh(@Body request: RefreshRequest): LoginResponse
 
     @POST("auth/logout")
-    suspend fun logout(): DefaultResponseDto
+    suspend fun logout(): DefaultResponseDto<Unit>
 }

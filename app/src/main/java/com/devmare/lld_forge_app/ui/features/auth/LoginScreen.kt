@@ -30,10 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.devmare.lld_forge_app.ui.common.AuthTextField
 import com.devmare.lld_forge_app.ui.common.ClickableLoginText
 import com.devmare.lld_forge_app.ui.common.GradientButton
-import com.devmare.lld_forge_app.ui.theme.gradient1
-import com.devmare.lld_forge_app.ui.theme.gradient2
-import com.devmare.lld_forge_app.ui.theme.whiteColor
 import com.devmare.lld_forge_app.ui.features.auth.viewmodel.LoginViewModel
+import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
+import com.devmare.lld_forge_app.ui.theme.primaryGradientStart
+import com.devmare.lld_forge_app.ui.theme.primaryTextColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -79,7 +79,11 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Welcome Back!", style = MaterialTheme.typography.displayLarge, color = whiteColor)
+            Text(
+                "Welcome Back!",
+                style = MaterialTheme.typography.displayLarge,
+                color = primaryTextColor
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -103,7 +107,7 @@ fun LoginScreen(
             GradientButton(
                 text = "Login",
                 onClick = { onLoginClick(email, password) },
-                gradientColors = listOf(gradient1, gradient2),
+                gradientColors = listOf(primaryGradientStart, primaryGradientMiddle),
                 enabled = !uiState.isLoading
             )
 

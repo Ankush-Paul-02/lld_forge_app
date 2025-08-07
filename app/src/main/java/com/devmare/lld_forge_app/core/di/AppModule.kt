@@ -13,6 +13,7 @@ import com.devmare.lld_forge_app.data.repository.AuthRepositoryImpl
 import com.devmare.lld_forge_app.data.repository.UserRepositoryImpl
 import com.devmare.lld_forge_app.domain.repository.AuthRepository
 import com.devmare.lld_forge_app.domain.repository.UserRepository
+import com.devmare.lld_forge_app.domain.usecase.FetchLeaderboardMentorsUseCase
 import com.devmare.lld_forge_app.domain.usecase.LoginUseCase
 import com.devmare.lld_forge_app.domain.usecase.SignUpUseCase
 import com.devmare.lld_forge_app.domain.usecase.UserUsecase
@@ -57,7 +58,7 @@ object AppModule {
     fun provideTokenAuthenticator(
         tokenProvider: TokenProvider,
         @AuthRetrofit retrofit: Retrofit,
-        sessionManager: SessionManager
+        sessionManager: SessionManager,
     ): TokenAuthenticator {
         val authApi = retrofit.create(AuthApi::class.java)
         return TokenAuthenticator(tokenProvider, authApi, sessionManager)
@@ -67,7 +68,7 @@ object AppModule {
     @Singleton
     fun provideOkHttpClient(
         authInterceptor: AuthInterceptor,
-        tokenAuthenticator: TokenAuthenticator
+        tokenAuthenticator: TokenAuthenticator,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
@@ -129,5 +130,10 @@ object AppModule {
     @Provides
     fun provideUserUseCase(repository: UserRepository): UserUsecase {
         return UserUsecase(repository)
+    }
+
+    @Provides
+    fun provideFetchLeaderboardUsecase(repository: UserRepository): FetchLeaderboardMentorsUseCase {
+        return FetchLeaderboardMentorsUseCase(repository)
     }
 }
