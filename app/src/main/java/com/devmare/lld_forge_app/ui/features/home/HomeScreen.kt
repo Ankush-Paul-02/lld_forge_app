@@ -3,28 +3,27 @@ package com.devmare.lld_forge_app.ui.features.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import com.devmare.lld_forge_app.R;
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,12 +33,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.devmare.lld_forge_app.R
+import com.devmare.lld_forge_app.core.prefs.DataStoreManager
 import com.devmare.lld_forge_app.ui.features.home.common.BottomNavItem
 import com.devmare.lld_forge_app.ui.features.home.common.BottomNavigationBar
 import com.devmare.lld_forge_app.ui.features.home.common.MentorList
@@ -47,16 +52,23 @@ import com.devmare.lld_forge_app.ui.features.home.common.UserProfile
 import com.devmare.lld_forge_app.ui.features.home.viewmodel.HomeUIState
 import com.devmare.lld_forge_app.ui.features.home.viewmodel.HomeViewModel
 import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
+import com.devmare.lld_forge_app.ui.theme.surfaceBorder
+import kotlinx.coroutines.launch
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalLayoutApi::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onSessionExpired: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
     val state by homeViewModel.homeState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    val isImeVisible = WindowInsets.isImeVisible
 
     val bottomNavItems = listOf(
         BottomNavItem("Home", R.drawable.home),
@@ -70,14 +82,18 @@ fun HomeScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         contentWindowInsets = WindowInsets.safeDrawing,
         bottomBar = {
-            BottomNavigationBar(
-                items = bottomNavItems,
-                selectedIndex = selectedTab,
-                onItemSelected = { selectedTab = it }
-            )
+            // Hide nav bar when keyboard is open
+            if (!isImeVisible) {
+                BottomNavigationBar(
+                    items = bottomNavItems,
+                    selectedIndex = selectedTab,
+                    onItemSelected = { selectedTab = it }
+                )
+            }
         }
     ) { innerPadding ->
 
@@ -100,7 +116,9 @@ fun HomeScreen(
                     val topMentors = (state as HomeUIState.Success).topMentors
 
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 0.dp),
                         verticalArrangement = Arrangement.Top
                     ) {
                         // Top Bar Row
@@ -126,13 +144,25 @@ fun HomeScreen(
 
                                 DropdownMenu(
                                     expanded = menuExpanded,
-                                    onDismissRequest = { menuExpanded = false }
+                                    onDismissRequest = { menuExpanded = false },
+                                    modifier = Modifier.background(surfaceBorder)
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text("Logout") },
                                         onClick = {
                                             menuExpanded = false
-                                            onSessionExpired()
+                                            coroutineScope.launch {
+                                                dataStoreManager.clearAccessToken()
+                                                onSessionExpired()
+                                            }
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.logout),
+                                                contentDescription = "Logout",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(24.dp)
+                                            )
                                         }
                                     )
                                 }
@@ -141,15 +171,17 @@ fun HomeScreen(
 
                         // Flowing content based on tab
                         when (selectedTab) {
-                            0 -> MentorList(topMentors)
+                            0 -> MentorList(topMentors, user = user)
                             1 -> Text(
                                 text = "Mentors section coming soon",
                                 modifier = Modifier.padding(top = 32.dp)
                             )
+
                             2 -> Text(
                                 text = "Community section coming soon",
                                 modifier = Modifier.padding(top = 32.dp)
                             )
+
                             3 -> Text(
                                 text = "Question section coming soon",
                                 modifier = Modifier.padding(top = 32.dp)
@@ -169,6 +201,10 @@ fun HomeScreen(
                 }
 
                 is HomeUIState.SessionExpired -> {
+                    LaunchedEffect(Unit) {
+                        dataStoreManager.clearAccessToken()
+                        onSessionExpired()
+                    }
                     onSessionExpired()
                     Text(
                         text = "Session expired. Redirecting...",

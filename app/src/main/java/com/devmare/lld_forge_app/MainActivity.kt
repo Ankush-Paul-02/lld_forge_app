@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -16,34 +17,41 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.devmare.lld_forge_app.core.navigation.LldForgeNavGraph
 import com.devmare.lld_forge_app.core.navigation.Screen
 import com.devmare.lld_forge_app.core.prefs.DataStoreManager
-import com.devmare.lld_forge_app.ui.theme.appBackground
+import com.devmare.lld_forge_app.ui.features.home.viewmodel.MentorshipViewModel
 import com.devmare.lld_forge_app.ui.theme.LldForgeAppTheme
+import com.devmare.lld_forge_app.ui.theme.appBackground
+import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalAnimationApi::class)
+class MainActivity : ComponentActivity(), PaymentResultListener {
 
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
+    private lateinit var mentorshipViewModel: MentorshipViewModel
+
+    @RequiresApi(Build.VERSION_CODES.O)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
             LldForgeAppTheme {
-
                 val navController = rememberNavController()
                 val startDestination = remember { mutableStateOf<String?>(null) }
 
-                /// Launch effect to check if user is logged in or not
+                // Get ViewModel using Hilt
+                mentorshipViewModel = viewModel()
+
                 LaunchedEffect(Unit) {
                     val token = dataStoreManager.getAccessToken()
                     startDestination.value =
@@ -55,7 +63,6 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(appBackground)
                 ) {
-                    /// Render NavGraph only when the destination is known
                     if (startDestination.value == null) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     } else {
@@ -64,5 +71,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onPaymentSuccess(razorpayPaymentId: String?) {
+        mentorshipViewModel.emitPaymentSuccess(razorpayPaymentId ?: "Unknown ID")
+    }
+
+    override fun onPaymentError(code: Int, response: String?) {
+        mentorshipViewModel.emitPaymentError(response ?: "Unknown error")
     }
 }

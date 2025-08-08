@@ -78,4 +78,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
     implementation("androidx.compose.material3:material3:1.3.2")
+
+    implementation("com.razorpay:checkout:1.6.41")
 }

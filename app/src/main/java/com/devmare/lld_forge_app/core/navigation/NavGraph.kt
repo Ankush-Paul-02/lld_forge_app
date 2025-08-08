@@ -1,6 +1,7 @@
 package com.devmare.lld_forge_app.core.navigation
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ enum class Screen {
     HOME
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)

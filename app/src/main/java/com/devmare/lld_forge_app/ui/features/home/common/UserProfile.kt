@@ -31,7 +31,7 @@ fun UserProfile(name: String, role: String) {
         // Circle with first letter
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(64.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center

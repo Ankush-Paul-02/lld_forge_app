@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,11 +15,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.devmare.lld_forge_app.ui.theme.primaryGradientEnd
 import com.devmare.lld_forge_app.ui.theme.surfaceBorder
+import com.devmare.lld_forge_app.ui.theme.transparent
 
 data class BottomNavItem(
     val label: String,
@@ -35,29 +36,48 @@ fun BottomNavigationBar(
 ) {
     Box(
         modifier = Modifier
-            .padding(16.dp) // This adds margin from bottom and sides
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 16.dp)
+            .shadow(elevation = 12.dp, shape = RoundedCornerShape(32.dp), clip = false)
+            .clip(RoundedCornerShape(32.dp))
+            .background(transparent)
     ) {
         NavigationBar(
-            tonalElevation = 8.dp,
+            tonalElevation = 0.dp,
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(surfaceBorder),
+                .clip(RoundedCornerShape(32.dp))
+                .background(Color.Transparent),
             containerColor = surfaceBorder
         ) {
             items.forEachIndexed { index, item ->
+                val isSelected = selectedIndex == index
+
                 NavigationBarItem(
-                    selected = selectedIndex == index,
+                    selected = isSelected,
                     onClick = { onItemSelected(index) },
                     icon = {
-                        Icon(
-                            painter = painterResource(id = item.iconRes),
-                            contentDescription = item.label,
-                            tint = if (selectedIndex == index) primaryGradientEnd else Color.Gray,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        androidx.compose.animation.AnimatedContent(
+                            targetState = isSelected,
+                            label = "BottomNavIconAnimation"
+                        ) { selected ->
+                            Icon(
+                                painter = painterResource(id = item.iconRes),
+                                contentDescription = item.label,
+                                tint = if (selected) primaryGradientEnd else Color.Gray,
+                                modifier = Modifier
+                                    .size(if (selected) 28.dp else 24.dp)
+                            )
+                        }
                     },
-                    label = { Text(item.label) },
+                    label = {
+                        androidx.compose.animation.AnimatedVisibility(visible = isSelected) {
+                            Text(
+                                text = item.label,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = primaryGradientEnd
+                            )
+                        }
+                    },
                     alwaysShowLabel = false
                 )
             }
