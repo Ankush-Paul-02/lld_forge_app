@@ -48,7 +48,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
 import com.devmare.lld_forge_app.core.dto.MentorDto
+import com.devmare.lld_forge_app.core.navigation.Screen
 import com.devmare.lld_forge_app.core.utils.RazorpayCheckoutHelper
 import com.devmare.lld_forge_app.core.utils.customHeightSpacer
 import com.devmare.lld_forge_app.core.utils.customWidthSpace
@@ -64,9 +66,8 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @Composable
-fun MentorList(mentors: List<MentorDto>, user: User) {
+fun MentorList(mentors: List<MentorDto>, user: User, navController: NavController) {
     var expandedMentor by remember { mutableStateOf<String?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Column(modifier = Modifier.padding(top = 24.dp)) {
         Text(
@@ -84,11 +85,11 @@ fun MentorList(mentors: List<MentorDto>, user: User) {
                 MentorItem(
                     mentor = mentor,
                     user = user,
+                    navController = navController,
                     isExpanded = expandedMentor == mentor.name,
                     onClick = {
                         expandedMentor = if (expandedMentor == mentor.name) null else mentor.name
-                    },
-                    snackbarHostState = snackbarHostState
+                    }
                 )
             }
         }
@@ -100,9 +101,9 @@ fun MentorList(mentors: List<MentorDto>, user: User) {
 fun MentorItem(
     mentor: MentorDto,
     user: User,
+    navController: NavController,
     isExpanded: Boolean,
     onClick: () -> Unit,
-    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -151,39 +152,6 @@ fun MentorItem(
         false,
     )
 
-    LaunchedEffect(Unit) {
-        mentorshipViewModel.paymentResult.collect { result ->
-            result.onSuccess {
-                snackbarHostState.showSnackbar("Payment Success")
-            }.onFailure {
-                snackbarHostState.showSnackbar("Payment Failed")
-            }
-        }
-    }
-
-    // Only collect once safely across recompositions
-    LaunchedEffect(Unit) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            mentorshipViewModel.paymentResult.collect { result ->
-                result.onSuccess { paymentId ->
-                    Toast.makeText(
-                        context,
-                        "Payment Success: $paymentId",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    // Navigate to next screen or refresh UI
-                }.onFailure { ex ->
-                    Toast.makeText(
-                        context,
-                        "Payment Failed: ${ex.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    // Show error UI or allow retry
-                }
-            }
-        }
-    }
-
     LaunchedEffect(bookingState) {
         if (bookingState is BookSessionUiState.Success) {
             val data = (bookingState as BookSessionUiState.Success).data
@@ -199,6 +167,49 @@ fun MentorItem(
                 ).startPayment()
             }
             mentorshipViewModel.resetState()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            mentorshipViewModel.paymentResult.collect { result ->
+                result.onSuccess { paymentId ->
+                    Toast.makeText(context, "Payment Success: $paymentId", Toast.LENGTH_LONG).show()
+                    // Notify parent to handle navigation
+                    navController.navigate(Screen.HOME.name) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                }.onFailure { ex ->
+                    Toast.makeText(context, "Payment Failed: ${ex.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            mentorshipViewModel.paymentResult.collect { result ->
+                result.onSuccess { paymentId ->
+                    Toast.makeText(
+                        context,
+                        "Payment Success: $paymentId",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    snackbarHostState.showSnackbar("Payment Success")
+                    navController.navigate(Screen.HOME.name) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                }.onFailure { ex ->
+                    Toast.makeText(
+                        context,
+                        "Payment Failed: ${ex.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    snackbarHostState.showSnackbar("Payment Failed")
+                }
+            }
         }
     }
 
@@ -311,10 +322,10 @@ fun MentorItem(
 
                                 val request = MentorshipBookingRequest(
                                     amount = when (selectedPayment) {
-                                        "30_min" -> 99
-                                        "45_min" -> 149
-                                        "60_min" -> 199
-                                        else -> 99
+                                        "30_min" -> 9900
+                                        "45_min" -> 14900
+                                        "60_min" -> 19900
+                                        else -> 9900
                                     },
                                     receiverId = mentor.id,
                                     scheduledAt = cal.timeInMillis,

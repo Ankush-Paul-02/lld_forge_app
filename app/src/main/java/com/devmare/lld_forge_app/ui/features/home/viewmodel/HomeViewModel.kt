@@ -39,7 +39,7 @@ class HomeViewModel @Inject constructor(
             try {
                 val user = userUsecase()
                 val leaderboardMentors = fetchLeaderboardMentorsUseCase()
-                _homeState.value = HomeUIState.Success(user.data.user, leaderboardMentors.data.data)
+                _homeState.value = HomeUIState.Success(user.data.data, leaderboardMentors.data.data)
             } catch (e: HttpException) {
                 throw AppInfoException(extractErrorMessage(e.response()?.errorBody()?.string()))
             } catch (e: AppInfoException) {

@@ -14,6 +14,7 @@ import com.devmare.lld_forge_app.data.repository.UserRepositoryImpl
 import com.devmare.lld_forge_app.domain.repository.AuthRepository
 import com.devmare.lld_forge_app.domain.repository.UserRepository
 import com.devmare.lld_forge_app.domain.usecase.FetchLeaderboardMentorsUseCase
+import com.devmare.lld_forge_app.domain.usecase.FetchMentorshipSessionsUsecase
 import com.devmare.lld_forge_app.domain.usecase.LoginUseCase
 import com.devmare.lld_forge_app.domain.usecase.SignUpUseCase
 import com.devmare.lld_forge_app.domain.usecase.UserUsecase
@@ -135,5 +136,10 @@ object AppModule {
     @Provides
     fun provideFetchLeaderboardUsecase(repository: UserRepository): FetchLeaderboardMentorsUseCase {
         return FetchLeaderboardMentorsUseCase(repository)
+    }
+
+    @Provides
+    fun provideFetchMentorshipSessions(repository: UserRepository): FetchMentorshipSessionsUsecase {
+        return FetchMentorshipSessionsUsecase(repository)
     }
 }

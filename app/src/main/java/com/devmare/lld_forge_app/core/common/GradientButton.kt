@@ -1,4 +1,4 @@
-package com.devmare.lld_forge_app.ui.common
+package com.devmare.lld_forge_app.core.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

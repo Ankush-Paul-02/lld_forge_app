@@ -10,3 +10,7 @@ data class DefaultResponseDto<T>(
         SUCCESS
     }
 }
+
+data class DataWrapper<T>(
+    val data: T
+)

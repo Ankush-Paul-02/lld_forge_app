@@ -43,14 +43,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.devmare.lld_forge_app.R
+import com.devmare.lld_forge_app.core.navigation.Screen
 import com.devmare.lld_forge_app.core.prefs.DataStoreManager
 import com.devmare.lld_forge_app.ui.features.home.common.BottomNavItem
 import com.devmare.lld_forge_app.ui.features.home.common.BottomNavigationBar
 import com.devmare.lld_forge_app.ui.features.home.common.MentorList
+import com.devmare.lld_forge_app.ui.features.home.common.MentorshipSession
 import com.devmare.lld_forge_app.ui.features.home.common.UserProfile
 import com.devmare.lld_forge_app.ui.features.home.viewmodel.HomeUIState
 import com.devmare.lld_forge_app.ui.features.home.viewmodel.HomeViewModel
+import com.devmare.lld_forge_app.ui.features.home.viewmodel.MentorshipViewModel
 import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
 import com.devmare.lld_forge_app.ui.theme.surfaceBorder
 import kotlinx.coroutines.launch
@@ -61,6 +68,7 @@ import kotlinx.coroutines.launch
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
+    mentorshipViewModel: MentorshipViewModel = hiltViewModel(),
     onSessionExpired: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -69,6 +77,8 @@ fun HomeScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val isImeVisible = WindowInsets.isImeVisible
+    val navController = rememberNavController()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val bottomNavItems = listOf(
         BottomNavItem("Home", R.drawable.home),
@@ -79,6 +89,19 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homeViewModel.fetchCurrentUserProfile()
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            mentorshipViewModel.paymentResult.collect { result ->
+                result.onSuccess { paymentId ->
+                    navController.navigate(Screen.HOME.name) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                }.onFailure { }
+            }
+        }
     }
 
     Scaffold(
@@ -171,10 +194,10 @@ fun HomeScreen(
 
                         // Flowing content based on tab
                         when (selectedTab) {
-                            0 -> MentorList(topMentors, user = user)
-                            1 -> Text(
-                                text = "Mentors section coming soon",
-                                modifier = Modifier.padding(top = 32.dp)
+                            0 -> MentorList(topMentors, user = user, navController = navController)
+                            1 -> MentorshipSession(
+                                user = user,
+                                mentorshipViewModel = mentorshipViewModel
                             )
 
                             2 -> Text(

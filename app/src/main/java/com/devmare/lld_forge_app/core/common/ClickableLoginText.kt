@@ -1,4 +1,4 @@
-package com.devmare.lld_forge_app.ui.common
+package com.devmare.lld_forge_app.core.common
 
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme

@@ -27,9 +27,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.devmare.lld_forge_app.ui.common.AuthTextField
-import com.devmare.lld_forge_app.ui.common.ClickableLoginText
-import com.devmare.lld_forge_app.ui.common.GradientButton
+import com.devmare.lld_forge_app.core.common.AuthTextField
+import com.devmare.lld_forge_app.core.common.ClickableLoginText
+import com.devmare.lld_forge_app.core.common.GradientButton
 import com.devmare.lld_forge_app.ui.features.auth.viewmodel.LoginViewModel
 import com.devmare.lld_forge_app.ui.theme.primaryGradientMiddle
 import com.devmare.lld_forge_app.ui.theme.primaryGradientStart

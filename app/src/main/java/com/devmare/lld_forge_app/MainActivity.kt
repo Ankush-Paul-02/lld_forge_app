@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +24,7 @@ import com.devmare.lld_forge_app.core.prefs.DataStoreManager
 import com.devmare.lld_forge_app.ui.features.home.viewmodel.MentorshipViewModel
 import com.devmare.lld_forge_app.ui.theme.LldForgeAppTheme
 import com.devmare.lld_forge_app.ui.theme.appBackground
+import com.razorpay.Checkout
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -37,21 +37,21 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
 
     private lateinit var mentorshipViewModel: MentorshipViewModel
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    @OptIn(ExperimentalAnimationApi::class)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Checkout.preload(applicationContext)
         enableEdgeToEdge()
 
         setContent {
             LldForgeAppTheme {
                 val navController = rememberNavController()
-                val startDestination = remember { mutableStateOf<String?>(null) }
-
-                // Get ViewModel using Hilt
                 mentorshipViewModel = viewModel()
 
+                val startDestination = remember { mutableStateOf<String?>(null) }
+
+                // Decide initial screen
                 LaunchedEffect(Unit) {
                     val token = dataStoreManager.getAccessToken()
                     startDestination.value =
